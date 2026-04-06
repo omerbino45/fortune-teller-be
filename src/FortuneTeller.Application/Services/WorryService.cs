@@ -10,21 +10,21 @@ namespace FortuneTeller.Application.Services;
 
 public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryService
 {
-    public async Task<IReadOnlyList<WorryResponse>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<WorryResponse>> GetAllAsync(Guid userId, CancellationToken ct = default)
     {
-        var worries = await repository.GetAllAsync(ct);
+        var worries = await repository.GetAllAsync(userId, ct);
         return mapper.Map<IReadOnlyList<WorryResponse>>(worries);
     }
 
-    public async Task<WorryResponse> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<WorryResponse> GetByIdAsync(Guid id, Guid userId, CancellationToken ct = default)
     {
-        var worry = await repository.GetByIdAsync(id, ct)
+        var worry = await repository.GetByIdAsync(id, userId, ct)
             ?? throw new NotFoundException($"Worry {id} not found.");
 
         return mapper.Map<WorryResponse>(worry);
     }
 
-    public async Task<WorryResponse> CreateAsync(CreateWorryRequest request, CancellationToken ct = default)
+    public async Task<WorryResponse> CreateAsync(CreateWorryRequest request, Guid userId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
@@ -35,11 +35,12 @@ public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryS
             Title              = request.Title,
             Description        = request.Description,
             Factors            = request.Factors,
-            PreAnxietyLevel    = request.PreAnxietyLevel,  // Locked after this point
-            Prophecy           = request.Prophecy,          // Locked after this point
+            PreAnxietyLevel    = request.PreAnxietyLevel,
+            Prophecy           = request.Prophecy,
             Assurance          = request.Assurance,
             CreatedAt          = now,
             AssuranceUpdatedAt = now,
+            UserId             = userId
         };
 
         await repository.AddAsync(worry, ct);
@@ -48,12 +49,11 @@ public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryS
         return mapper.Map<WorryResponse>(worry);
     }
 
-    public async Task<WorryResponse> PatchAsync(Guid id, PatchWorryRequest request, CancellationToken ct = default)
+    public async Task<WorryResponse> PatchAsync(Guid id, PatchWorryRequest request, Guid userId, CancellationToken ct = default)
     {
-        var worry = await repository.GetByIdAsync(id, ct)
+        var worry = await repository.GetByIdAsync(id, userId, ct)
             ?? throw new NotFoundException($"Worry {id} not found.");
 
-        // Apply editable fields — PreAnxietyLevel and Prophecy are intentionally absent
         if (request.Title is not null)
             worry.Title = request.Title;
 
@@ -69,7 +69,6 @@ public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryS
             worry.AssuranceUpdatedAt = DateTime.UtcNow;
         }
 
-        // Resolution logic
         bool hasOutcome   = request.ActualOutcome is not null;
         bool hasPostLevel = request.PostAnxietyLevel is not null;
 
@@ -93,9 +92,9 @@ public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryS
         return mapper.Map<WorryResponse>(worry);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid id, Guid userId, CancellationToken ct = default)
     {
-        var worry = await repository.GetByIdAsync(id, ct)
+        var worry = await repository.GetByIdAsync(id, userId, ct)
             ?? throw new NotFoundException($"Worry {id} not found.");
 
         await repository.DeleteAsync(worry, ct);

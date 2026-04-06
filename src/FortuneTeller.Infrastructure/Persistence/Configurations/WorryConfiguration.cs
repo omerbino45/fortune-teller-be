@@ -42,6 +42,8 @@ public class WorryConfiguration : IEntityTypeConfiguration<Worry>
         builder.Property(w => w.Prophecy)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
+        builder.Property(w => w.UserId).IsRequired();
+
         builder.ToTable("Worries");
     }
 }

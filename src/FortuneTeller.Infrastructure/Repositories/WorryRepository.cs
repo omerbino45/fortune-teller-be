@@ -7,14 +7,16 @@ namespace FortuneTeller.Infrastructure.Repositories;
 
 public class WorryRepository(AppDbContext context) : IWorryRepository
 {
-    public async Task<IReadOnlyList<Worry>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Worry>> GetAllAsync(Guid userId, CancellationToken ct = default)
         => await context.Worries
             .AsNoTracking()
+            .Where(w => w.UserId == userId)
             .OrderByDescending(w => w.CreatedAt)
             .ToListAsync(ct);
 
-    public async Task<Worry?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await context.Worries.FindAsync([id], ct);
+    public async Task<Worry?> GetByIdAsync(Guid id, Guid userId, CancellationToken ct = default)
+        => await context.Worries
+            .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId, ct);
 
     public async Task AddAsync(Worry worry, CancellationToken ct = default)
         => await context.Worries.AddAsync(worry, ct);

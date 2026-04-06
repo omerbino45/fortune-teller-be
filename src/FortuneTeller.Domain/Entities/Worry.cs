@@ -21,4 +21,8 @@ public class Worry
 
     public DateTime CreatedAt { get; set; }
     public DateTime AssuranceUpdatedAt { get; set; }
+
+    // Ownership
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 }
