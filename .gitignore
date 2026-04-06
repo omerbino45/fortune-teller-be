@@ -1,0 +1,29 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.userprefs
+
+## Secrets — never commit connection strings or keys
+appsettings.Production.json
+appsettings.*.local.json
+secrets.json
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+
+## macOS
+.DS_Store
+
+## NuGet
+*.nupkg
+.nuget/
+
+## EF Core tools output
+migrations-output/
+.claude/
