@@ -1,7 +1,5 @@
-using System.Security.Claims;
 using FortuneTeller.Application.DTOs;
 using FortuneTeller.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FortuneTeller.API.Controllers;
@@ -50,18 +48,12 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(result);
     }
 
-    // POST /api/auth/resend-verification (requires valid JWT — user logged in but unverified)
+    // POST /api/auth/resend-verification (public — unverified users have no JWT)
     [HttpPost("resend-verification")]
-    [Authorize]
-    public async Task<IActionResult> ResendVerification(CancellationToken ct = default)
+    public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequest request, CancellationToken ct = default)
     {
-        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? User.FindFirstValue("sub");
-
-        if (!Guid.TryParse(userIdStr, out var userId))
-            return Unauthorized();
-
-        await authService.ResendVerificationAsync(userId, ct);
-        return Ok(new { message = "אימייל אימות נשלח מחדש." });
+        await authService.ResendVerificationAsync(request.Username, ct);
+        // Always return the same message — no info leak
+        return Ok(new { message = "אם החשבון קיים וממתין לאימות, שלחנו אימייל חדש." });
     }
 }

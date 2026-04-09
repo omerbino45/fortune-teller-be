@@ -128,13 +128,13 @@ public class AuthService(
         return BuildAuthResponse(user);
     }
 
-    public async Task ResendVerificationAsync(Guid userId, CancellationToken ct = default)
+    public async Task ResendVerificationAsync(string username, CancellationToken ct = default)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct);
-        if (user is null) return;
-        if (user.IsEmailVerified) return;
+        var user = await userRepository.GetByUsernameAsync(username, ct);
+        if (user is null) return;           // Silent — no info leak
+        if (user.IsEmailVerified) return;   // Silent — already verified
 
-        // Rate-limit: only regenerate if the existing token is older than 2 minutes
+        // Rate-limit: only regenerate if existing token is older than 2 minutes
         if (user.EmailVerificationTokenExpiry.HasValue &&
             user.EmailVerificationTokenExpiry.Value > DateTime.UtcNow.AddHours(24).AddMinutes(-2))
         {
