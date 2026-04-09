@@ -16,6 +16,10 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         {
             await WriteErrorAsync(context, HttpStatusCode.NotFound, ex.Message);
         }
+        catch (EmailNotVerifiedException ex)
+        {
+            await WriteErrorAsync(context, HttpStatusCode.Forbidden, ex.Message, "EMAIL_NOT_VERIFIED");
+        }
         catch (AppValidationException ex)
         {
             await WriteErrorAsync(context, HttpStatusCode.BadRequest, ex.Message);
@@ -31,11 +35,13 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
     }
 
-    private static async Task WriteErrorAsync(HttpContext context, HttpStatusCode status, string message)
+    private static async Task WriteErrorAsync(HttpContext context, HttpStatusCode status, string message, string? code = null)
     {
         context.Response.StatusCode = (int)status;
         context.Response.ContentType = "application/json";
-        var body = JsonSerializer.Serialize(new { error = message });
+        var body = code is not null
+            ? JsonSerializer.Serialize(new { error = message, code })
+            : JsonSerializer.Serialize(new { error = message });
         await context.Response.WriteAsync(body);
     }
 }

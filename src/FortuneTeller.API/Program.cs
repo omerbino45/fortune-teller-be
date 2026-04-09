@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,16 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IWorryService, WorryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IEmailService, ResendEmailService>();
+
+// Resend email client
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+    o.ApiToken = builder.Configuration["Email:ResendApiKey"] ?? string.Empty;
+});
+builder.Services.AddTransient<IResend, ResendClient>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<WorryProfile>());

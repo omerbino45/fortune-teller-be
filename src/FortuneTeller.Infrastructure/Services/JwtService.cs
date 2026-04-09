@@ -23,6 +23,7 @@ public class JwtService(IConfiguration configuration) : IJwtService
             new Claim(JwtRegisteredClaimNames.Sub,  user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
             new Claim("name", user.Name),
+            new Claim("isEmailVerified", user.IsEmailVerified.ToString().ToLower()),
             new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString())
         };
 
