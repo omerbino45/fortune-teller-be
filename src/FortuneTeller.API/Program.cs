@@ -109,8 +109,8 @@ app.UseCors("LocalFrontend");
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Health check endpoint — used by UptimeRobot to keep the service warm
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+// Health check endpoint — used by UptimeRobot to keep the service warm (GET + HEAD)
+app.MapMethods("/health", ["GET", "HEAD"], () => Results.Ok(new { status = "healthy" }));
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
