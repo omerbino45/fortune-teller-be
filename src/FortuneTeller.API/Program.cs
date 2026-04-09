@@ -37,6 +37,8 @@ var jwtSecret = builder.Configuration["Jwt:Secret"]
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Prevent ASP.NET Core from remapping standard JWT claim names (sub → nameidentifier, etc.)
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer           = true,
@@ -51,11 +53,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// CORS — allow the local FE dev server
+// CORS — allow FE origins from config (env var in prod, fallback to localhost in dev)
+var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(',')
+    ?? new[] { "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("LocalFrontend", policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -91,11 +96,21 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Auto-run EF migrations on startup (safe for production — only applies pending migrations)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("LocalFrontend");
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Health check endpoint — used by UptimeRobot to keep the service warm
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
