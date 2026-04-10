@@ -95,14 +95,7 @@ public class AuthService(
 
         await userRepository.SaveChangesAsync(ct);
 
-        try
-        {
-            await emailService.SendPasswordResetEmailAsync(user.Email!, user.Name, resetToken);
-        }
-        catch
-        {
-            // Silently swallow — response is always the same
-        }
+        await emailService.SendPasswordResetEmailAsync(user.Email!, user.Name, resetToken);
     }
 
     public async Task<AuthResponse> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default)
