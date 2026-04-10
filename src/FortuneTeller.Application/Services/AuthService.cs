@@ -86,8 +86,8 @@ public class AuthService(
     {
         var user = await userRepository.GetByEmailAsync(email, ct);
 
-        // Always succeed — prevent user enumeration
-        if (user is null) return;
+        if (user is null)
+            throw new AppValidationException("לא נמצא חשבון עם כתובת האימייל הזו.");
 
         var resetToken = Guid.NewGuid().ToString("N");
         user.PasswordResetToken       = resetToken;

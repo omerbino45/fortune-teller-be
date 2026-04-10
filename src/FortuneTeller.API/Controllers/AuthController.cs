@@ -37,7 +37,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken ct = default)
     {
         await authService.ForgotPasswordAsync(request.Email, ct);
-        return Ok(new { message = "אם הכתובת קיימת במערכת, שלחנו הוראות לאיפוס הסיסמה." });
+        return Ok(new { message = "שלחנו הוראות לאיפוס הסיסמה לכתובת האימייל שלך." });
     }
 
     // POST /api/auth/reset-password
