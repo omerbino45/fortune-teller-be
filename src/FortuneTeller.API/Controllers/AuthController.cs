@@ -52,7 +52,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("resend-verification")]
     public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequest request, CancellationToken ct = default)
     {
-        await authService.ResendVerificationAsync(request.Username, ct);
+        await authService.ResendVerificationAsync(request.Email, ct);
         // Always return the same message — no info leak
         return Ok(new { message = "אם החשבון קיים וממתין לאימות, שלחנו אימייל חדש." });
     }

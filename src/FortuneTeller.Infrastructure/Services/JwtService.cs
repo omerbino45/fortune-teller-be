@@ -20,11 +20,11 @@ public class JwtService(IConfiguration configuration) : IJwtService
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub,  user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new Claim(JwtRegisteredClaimNames.Sub,   user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim("name", user.Name),
             new Claim("isEmailVerified", user.IsEmailVerified.ToString().ToLower()),
-            new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti,   Guid.NewGuid().ToString())
         };
 
         var token = new JwtSecurityToken(

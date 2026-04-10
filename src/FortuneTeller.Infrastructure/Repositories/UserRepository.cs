@@ -10,10 +10,6 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await context.Users.FindAsync([id], ct);
 
-    public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)
-        => await context.Users
-            .FirstOrDefaultAsync(u => u.Username == username.ToLower(), ct);
-
     public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
         => await context.Users
             .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == email.ToLower(), ct);
@@ -26,15 +22,12 @@ public class UserRepository(AppDbContext context) : IUserRepository
         => await context.Users
             .FirstOrDefaultAsync(u => u.PasswordResetToken == token, ct);
 
-    public async Task<bool> UsernameExistsAsync(string username, CancellationToken ct = default)
-        => await context.Users.AnyAsync(u => u.Username == username.ToLower(), ct);
-
     public async Task<bool> EmailExistsAsync(string email, CancellationToken ct = default)
         => await context.Users.AnyAsync(u => u.Email != null && u.Email.ToLower() == email.ToLower(), ct);
 
     public async Task AddAsync(User user, CancellationToken ct = default)
     {
-        user.Username = user.Username.ToLower();
+        user.Email = user.Email.ToLower();
         await context.Users.AddAsync(user, ct);
     }
 

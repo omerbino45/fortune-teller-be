@@ -13,11 +13,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Id)
             .ValueGeneratedNever();
 
-        builder.Property(u => u.Username)
+        builder.Property(u => u.Email)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(254);
 
-        builder.HasIndex(u => u.Username)
+        builder.HasIndex(u => u.Email)
             .IsUnique();
 
         builder.Property(u => u.PasswordHash)

@@ -8,6 +8,7 @@ obj/
 
 ## Secrets — never commit connection strings or keys
 appsettings.Production.json
+appsettings.Development.json
 appsettings.*.local.json
 secrets.json
 

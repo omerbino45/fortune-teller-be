@@ -13,9 +13,6 @@ public class AuthService(
 {
     public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
-        if (await userRepository.UsernameExistsAsync(request.Username, ct))
-            throw new AppValidationException($"שם המשתמש '{request.Username}' כבר תפוס.");
-
         if (await userRepository.EmailExistsAsync(request.Email, ct))
             throw new AppValidationException("כתובת האימייל כבר בשימוש.");
 
@@ -24,7 +21,6 @@ public class AuthService(
         var user = new User
         {
             Id                           = Guid.NewGuid(),
-            Username                     = request.Username,
             PasswordHash                 = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Name                         = request.Name,
             Email                        = request.Email.ToLower(),
@@ -56,10 +52,10 @@ public class AuthService(
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
-        var user = await userRepository.GetByUsernameAsync(request.Username, ct);
+        var user = await userRepository.GetByEmailAsync(request.Email, ct);
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            throw new AppValidationException("שם משתמש או סיסמה שגויים.");
+            throw new AppValidationException("אימייל או סיסמה שגויים.");
 
         if (!user.IsEmailVerified)
             throw new EmailNotVerifiedException("עליך לאמת את כתובת האימייל שלך לפני הכניסה.");
@@ -128,9 +124,9 @@ public class AuthService(
         return BuildAuthResponse(user);
     }
 
-    public async Task ResendVerificationAsync(string username, CancellationToken ct = default)
+    public async Task ResendVerificationAsync(string email, CancellationToken ct = default)
     {
-        var user = await userRepository.GetByUsernameAsync(username, ct);
+        var user = await userRepository.GetByEmailAsync(email, ct);
         if (user is null) return;           // Silent — no info leak
         if (user.IsEmailVerified) return;   // Silent — already verified
 
@@ -161,7 +157,6 @@ public class AuthService(
     {
         Token           = jwtService.GenerateToken(user),
         UserId          = user.Id,
-        Username        = user.Username,
         Name            = user.Name,
         IsEmailVerified = user.IsEmailVerified
     };
