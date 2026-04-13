@@ -6,6 +6,7 @@ public class Worry
 {
     public Guid Id { get; set; }
     public WorryStatus Status { get; set; } = WorryStatus.Active;
+    public bool IsArchived { get; set; } = false;
 
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }

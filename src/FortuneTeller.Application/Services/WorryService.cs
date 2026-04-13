@@ -63,6 +63,9 @@ public class WorryService(IWorryRepository repository, IMapper mapper) : IWorryS
         if (request.Factors is not null)
             worry.Factors = request.Factors;
 
+        if (request.IsArchived is not null)
+            worry.IsArchived = request.IsArchived.Value;
+
         if (request.Assurance is not null && request.Assurance.Value != worry.Assurance)
         {
             worry.Assurance          = request.Assurance.Value;
