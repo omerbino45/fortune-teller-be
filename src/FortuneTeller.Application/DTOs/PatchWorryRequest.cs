@@ -18,4 +18,6 @@ public class PatchWorryRequest
 
     [Range(0, 100)]
     public int? PostAnxietyLevel { get; set; }
+
+    public bool? IsArchived { get; set; }
 }

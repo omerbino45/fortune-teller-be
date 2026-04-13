@@ -4,6 +4,7 @@ public class WorryResponse
 {
     public Guid Id { get; set; }
     public string Status { get; set; } = string.Empty;
+    public bool IsArchived { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public List<string> Factors { get; set; } = [];

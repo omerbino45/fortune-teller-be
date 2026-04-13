@@ -27,6 +27,7 @@ public class WorryConfiguration : IEntityTypeConfiguration<Worry>
 
         builder.Property(w => w.PreAnxietyLevel).IsRequired();
         builder.Property(w => w.Assurance).IsRequired();
+        builder.Property(w => w.IsArchived).IsRequired().HasDefaultValue(false);
         builder.Property(w => w.CreatedAt).IsRequired();
         builder.Property(w => w.AssuranceUpdatedAt).IsRequired();
 
